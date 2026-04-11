@@ -3,18 +3,30 @@ import datetime
 
 class ExcelProcessor:
 
-    def __init__(self,filepath):
-        self.df = read_excel(filepath)
-        self.money_col = self.df["Unnamed: 6"][10:] #this reads the column with the money.
-        self.sum = sum(self.money_col)
+    def __init__(self):
+        print("---------------------------------------------------------------------")
+        print("---------------------------THE GRAND PARSER--------------------------")
+        print("---------------------------------------------------------------------")
 
+        filepath = input("Please enter a valid filename to the .xls file to read:")
+        self.flag = False
+        try:
+            self.df = read_excel(filepath)
+
+            self.money_col = self.df["Unnamed: 6"].iloc[10:]
+            self.l = []
+            self.filtered_sum = 0
+        except:
+            print("Invalid input, file may not exist. Please restart program with a proper filepath.")
+            self.flag = True
+
+    def filter(self,scale):
         self.l = []
         self.filtered_sum = 0
-    
-    def filter(self,scale):
         for money in self.money_col:
-            if abs(money) <= scale: self.l.append(money)
-        self.filtered_sum = sum(self.l)
+            if abs(float(money)) <= scale: self.l.append(float(money))
+        for elem in self.l:
+            self.filtered_sum += float(elem)
 
     def calculate_days(self):
         date_col = self.df["Hesap Hareketleri"]
@@ -24,6 +36,8 @@ class ExcelProcessor:
         return date_diff.days
 
     def show(self):
+        if self.flag:
+            return
         scale = float(input("Input a positive numerical value to filter transactions by:"))
         self.filter(scale)
         days = self.calculate_days()
@@ -33,4 +47,6 @@ class ExcelProcessor:
         print("---------------------------------------------------------------------")
         print(f"Total money delta in {days} days equals: {self.filtered_sum}")
         print(f"Average money delta per day equals: {self.filtered_sum/days}")
+        print("---------------------------------------------------------------------")
+        print("---------------------------------------------------------------------")
         print("---------------------------------------------------------------------")
